@@ -31,58 +31,50 @@ namespace OAuth2.Controllers
         [HttpGet]
         public async Task<IActionResult> GoogleResponse()
         {
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var username = result.Principal.FindFirst(ClaimTypes.Name).Value;
-
-            var name = result.Principal.FindFirst(ClaimTypes.Surname).Value;
-
-            var email = result.Principal.FindFirst(ClaimTypes.Email).Value;
-
-            var generatePassword = _userService.GenerateRandomPassword();
-
-            byte[] passwordHash, passwordSalt;
-
-            _userService.CreatePasswordHash(generatePassword, out passwordHash, out passwordSalt);
-
-            var accountId = result.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var AccountType = AccountPermissions.Google_Type;
-
-            DateTime utcDateTime = DateTime.Now.ToUniversalTime();
-
-            var created = new UserCreateRequest
+            try
             {
-                Name = name,
-                UserName = username,
-                Email = email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                AccountId = accountId,
-                Type = (int)AccountType,
-                Creation_date = utcDateTime,
-            };
+                var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var response = new UserReadResponse
-            {
-                Name = name,
-                UserName = username,
-                Email = email,
-                AccountId = accountId,
-                Type = (int)AccountType,
-                CreationDate = utcDateTime,
-            };
+                var username = result.Principal.FindFirst(ClaimTypes.Name).Value;
+                var name = result.Principal.FindFirst(ClaimTypes.Surname).Value;
+                var email = result.Principal.FindFirst(ClaimTypes.Email).Value;
+                var generatePassword = _userService.GenerateRandomPassword();
 
-            var exist = _userService.IsExist(email, (int)AccountType);
-            if (!exist)
-            {
-                _userService.CreateUserAsync(created);
-                return Ok(response);
+                byte[] passwordHash, passwordSalt;
+                _userService.CreatePasswordHash(generatePassword, out passwordHash, out passwordSalt);
 
+                var accountId = result.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var AccountType = AccountPermissions.Google_Type;
+
+                DateTime utcDateTime = DateTime.Now.ToUniversalTime();
+
+                var created = new UserCreateRequest
+                {
+                    Name = name,
+                    UserName = username,
+                    Email = email,
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt,
+                    AccountId = accountId,
+                    Type = (int)AccountType,
+                    Creation_date = utcDateTime,
+                };
+
+                var exist = _userService.IsExist(email, (int)AccountType);
+
+                if (!exist)
+                {
+                    var data = await _userService.CreateUserAsync(created);
+                    return Ok(data);
+                }
+                else
+                {
+                    return StatusCode(409, "Google Email Already Exists!");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return StatusCode(409, "Google Email Already Exists!");
+                return StatusCode(500, "Internal Server Error");
             }
         }
     }

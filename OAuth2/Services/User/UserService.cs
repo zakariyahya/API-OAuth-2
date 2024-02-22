@@ -1,9 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OAuth2.Data;
 using OAuth2.Models.User;
 using OAuth2.Models.User.Requests;
+using OAuth2.Models.User.Responses;
+using static OAuth2.Models.AccountTypeEnum;
+using System.Security.Claims;
 
 namespace OAuth2.Services.User
 {
@@ -12,7 +17,7 @@ namespace OAuth2.Services.User
         private readonly OAuthContextClass _context;
         private readonly IMapper _mapper;
 
-        public UserService(OAuthContextClass context, IMapper mapper)
+        public UserService(OAuthContextClass context, IMapper mapper )
         {
             _context = context;
             _mapper = mapper;
@@ -20,10 +25,14 @@ namespace OAuth2.Services.User
 
        
 
-        public void CreateUserAsync(UserCreateRequest request)
+        public async Task<UserReadResponse> CreateUserAsync(UserCreateRequest request)
         {
-            _context.Add(_mapper.Map<UserModel>(request));
-            SaveChanges();
+            var model = _mapper.Map<UserModel>(request);
+            _context.Add(model);
+             SaveChanges();
+
+            var response = _mapper.Map<UserReadResponse>(model);
+            return response;
         }
 
         public bool SaveChanges()
@@ -99,12 +108,13 @@ namespace OAuth2.Services.User
 
         public bool IsExist(string email, int accountType)
         {
-           var exist =  _context.Users.Where(x=> x.Email == email && x.GroupId == accountType).FirstOrDefault();
-            if(exist == null)
+           var exist =  _context.Users.Where(x=> x.Email == email && x.Type == accountType).FirstOrDefault();
+            if (exist == null)
             {
-                return true;
+                return false;
             }
-            return false;
+
+            return true;
         }
     }
 }
