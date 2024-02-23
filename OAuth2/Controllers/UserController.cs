@@ -55,7 +55,7 @@ namespace OAuth2.Controllers
                 var AccountType = AccountPermissions.Google_Type;
 
                 DateTime utcDateTime = DateTime.Now.ToUniversalTime();
-                 var tasks = new List<Task>();
+           
                 var created = new UserCreateRequest
                 {
                     Name = name,
