@@ -1,4 +1,4 @@
-﻿
+﻿/*
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -48,7 +48,7 @@ namespace OAuth2.Services.Email
              SendEmailAsync(user.Email, "New password", $"<p>Your new password is: {password}</p><p>Please change it after login.</p>");
         }
 
-/*        public async Task<MimeMessage> BodyEmail(MimeMessage message, UserModel user, string password)
+*//*        public async Task<MimeMessage> BodyEmail(MimeMessage message, UserModel user, string password)
         {
             string token = CreateToken(user);
             message.From.Add(new MailboxAddress("Your Name", "your-email@example.com")); // Change this
@@ -59,7 +59,7 @@ namespace OAuth2.Services.Email
 
             return message;
         }
-*/
+*//*
         public string CreateToken(UserModel user)
         {
             List<Claim> claims =
@@ -75,3 +75,4 @@ namespace OAuth2.Services.Email
         }
     }
 }
+*/

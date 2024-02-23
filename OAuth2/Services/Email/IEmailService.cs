@@ -1,4 +1,4 @@
-﻿
+﻿/*
 using OAuth2.Models.User;
 
 namespace OAuth2.Services.Email
@@ -10,3 +10,4 @@ namespace OAuth2.Services.Email
         Task ConfirmPasswordReset(UserModel user, string password);
     }
 }
+*/

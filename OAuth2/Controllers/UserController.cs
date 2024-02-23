@@ -8,22 +8,23 @@ using OAuth2.Services.User;
 using OAuth2.Data;
 using Microsoft.AspNetCore.Authentication.Google;
 using static OAuth2.Models.AccountTypeEnum;
-using OAuth2.Services.Email;
 using OAuth2.Models.User;
 using AutoMapper;
+using Microsoft.AspNetCore.Cors;
 
 namespace OAuth2.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
+    [EnableCors("AllowSpecificOrigin")]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserService userService, IEmailService emailService, IMapper mapper)
+        public UserController(IUserService userService,  IMapper mapper)
         {
             _userService = userService;
-            _emailService = emailService;
             _mapper = mapper;
         }
 
@@ -41,7 +42,7 @@ namespace OAuth2.Controllers
         {
             try
             {
-                var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
                 var username = result.Principal.FindFirst(ClaimTypes.Name).Value;
                 var name = result.Principal.FindFirst(ClaimTypes.Surname).Value;
@@ -73,7 +74,7 @@ namespace OAuth2.Controllers
                 if (!exist)
                 {
                     var data = await _userService.CreateUserAsync(created);
-                    var user = _mapper.Map<UserModel>(data);
+                  /*  var user = _mapper.Map<UserModel>(data);*/
 /*
                     var sendEmail = _emailService.ConfirmPasswordReset(user, generatePassword);
 
@@ -94,7 +95,7 @@ namespace OAuth2.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal Server Error");
+                return StatusCode(500, ex.Message);
             }
         }
     }
