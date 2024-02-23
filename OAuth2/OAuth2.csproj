@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Profiles\User\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

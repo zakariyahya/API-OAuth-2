@@ -1,11 +1,14 @@
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OAuth2.Data;
+using OAuth2.Services.Email;
 using OAuth2.Services.User;
 using Swashbuckle.AspNetCore.Filters;
+using System.Net.Mail;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,8 +65,11 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
+/*builder.Services.AddTransient<SmtpClient>();*/
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 var app = builder.Build();
 

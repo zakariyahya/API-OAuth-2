@@ -8,15 +8,23 @@ using OAuth2.Services.User;
 using OAuth2.Data;
 using Microsoft.AspNetCore.Authentication.Google;
 using static OAuth2.Models.AccountTypeEnum;
+using OAuth2.Services.Email;
+using OAuth2.Models.User;
+using AutoMapper;
 
 namespace OAuth2.Controllers
 {
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IEmailService _emailService;
+        private readonly IMapper _mapper;
+
+        public UserController(IUserService userService, IEmailService emailService, IMapper mapper)
         {
             _userService = userService;
+            _emailService = emailService;
+            _mapper = mapper;
         }
 
         [Route("google-login")]
@@ -47,7 +55,7 @@ namespace OAuth2.Controllers
                 var AccountType = AccountPermissions.Google_Type;
 
                 DateTime utcDateTime = DateTime.Now.ToUniversalTime();
-
+                 var tasks = new List<Task>();
                 var created = new UserCreateRequest
                 {
                     Name = name,
@@ -65,12 +73,24 @@ namespace OAuth2.Controllers
                 if (!exist)
                 {
                     var data = await _userService.CreateUserAsync(created);
+                    var user = _mapper.Map<UserModel>(data);
+/*
+                    var sendEmail = _emailService.ConfirmPasswordReset(user, generatePassword);
+
+                    // Check if sending email is faulted
+                    if (sendEmail.IsFaulted)
+                    {
+                        // Log the error or handle it accordingly
+                        Console.WriteLine($"Error sending confirmation email: {sendEmail.Exception?.Message}");
+                    }*/
+
                     return Ok(data);
                 }
                 else
                 {
                     return StatusCode(409, "Google Email Already Exists!");
                 }
+
             }
             catch (Exception ex)
             {
